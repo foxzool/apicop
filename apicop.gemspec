@@ -9,9 +9,9 @@ Gem::Specification.new do |spec|
   spec.authors = ["ZoOL"]
   spec.email   = ["zhooul@gmail.com"]
 
-  spec.summary     = %q{ rack base oauth2 server for grape api}
+  spec.summary     = %q{ a REST like oauth2 api server }
   spec.description = %q{  Authorization Server solution and Resource Server Guard solution}
-  spec.homepage    = "TODO: Put your gem's website or public repo URL here."
+  spec.homepage    = "https://github.com/foxzool/apicop"
   spec.license     = "MIT"
 
   spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
