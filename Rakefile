@@ -1,6 +1,6 @@
 require 'rubygems'
 require 'bundler'
-Bundler.setup :default, :test, :development
+Bundler.setup :default, :spec, :development
 
 Bundler::GemHelper.install_tasks
 
