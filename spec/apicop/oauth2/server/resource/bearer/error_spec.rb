@@ -7,7 +7,9 @@ describe APICop::OAuth2::Server::Resource::Bearer::Unauthorized do
 
   describe '#scheme' do
     subject { error }
-    its(:scheme) { should == :Bearer }
+    context 'scheme' do
+      it { expect(subject.scheme).to eq :Bearer }
+    end
   end
 
   describe '#finish' do

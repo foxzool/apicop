@@ -7,13 +7,13 @@ describe APICop::OAuth2::Server::Authorize::BadRequest do
 
   subject { error }
   it { is_expected.to be_a APICop::OAuth2::Server::Abstract::BadRequest }
-  its(:protocol_params) do
-    should == {
-      :error => :invalid_request,
-      :error_description => nil,
-      :error_uri => nil,
-      :state => nil
-    }
+  context 'protocol_params' do
+    it { expect(subject.protocol_params).to eq({
+                                                 :error             => :invalid_request,
+                                                 :error_description => nil,
+                                                 :error_uri         => nil,
+                                                 :state             => nil
+                                               }) }
   end
 
   describe '#finish' do
@@ -89,14 +89,14 @@ describe APICop::OAuth2::Server::Authorize::ErrorMethods do
 
   APICop::OAuth2::Server::Authorize::ErrorMethods::DEFAULT_DESCRIPTION.keys.each do |error_code|
     method = "#{error_code}!"
-    klass = case error_code
-            when :server_error
-              APICop::OAuth2::Server::Authorize::ServerError
-            when :temporarily_unavailable
-              APICop::OAuth2::Server::Authorize::TemporarilyUnavailable
-            else
-              APICop::OAuth2::Server::Authorize::BadRequest
-            end
+    klass  = case error_code
+             when :server_error
+               APICop::OAuth2::Server::Authorize::ServerError
+             when :temporarily_unavailable
+               APICop::OAuth2::Server::Authorize::TemporarilyUnavailable
+             else
+               APICop::OAuth2::Server::Authorize::BadRequest
+             end
     describe method do
       it "should raise #{klass} with error = :#{error_code}" do
         klass =

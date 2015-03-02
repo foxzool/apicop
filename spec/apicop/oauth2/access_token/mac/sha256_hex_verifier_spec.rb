@@ -11,7 +11,7 @@ describe APICop::OAuth2::AccessToken::MAC::Sha256HexVerifier do
         :raw_body => 'grant_type=authorization_code&code=SplxlOBeZQQYbYS6WxSbIA&redirect_uri=http%3A%2F%2Flocalhost%2Fabc'
       )
     end
-    its(:calculate) { should == '21fb73c40b589622d0c78e9cd8900f89d9472aa724d0e5c3eca9ac1cd9d2a6d5' }
+    it { expect(subject.calculate).to eq '21fb73c40b589622d0c78e9cd8900f89d9472aa724d0e5c3eca9ac1cd9d2a6d5' }
   end
 
 
@@ -22,7 +22,7 @@ describe APICop::OAuth2::AccessToken::MAC::Sha256HexVerifier do
         :raw_body => ''
       )
     end
-    its(:calculate) { should be_nil }
+    it { expect(subject.calculate).to be_nil }
   end
 
 end

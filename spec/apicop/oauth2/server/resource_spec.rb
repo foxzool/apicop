@@ -2,7 +2,9 @@ require 'spec_helper.rb'
 
 describe APICop::OAuth2::Server::Resource do
   subject { APICop::OAuth2::Server::Resource.new(simple_app, 'realm') }
-  its(:realm) { should == 'realm' }
+  context 'realm' do
+    it { expect(subject.realm).to eq 'realm' }
+  end
 end
 
 describe APICop::OAuth2::Server::Resource::Request do

@@ -10,17 +10,23 @@ describe APICop::OAuth2::Server::Token::Password do
   let(:params) do
     {
       :grant_type => 'password',
-      :client_id => 'client_id',
-      :username => 'nov',
-      :password => 'secret'
+      :client_id  => 'client_id',
+      :username   => 'nov',
+      :password   => 'secret'
     }
   end
   subject { request.post('/', :params => params) }
 
-  its(:status)       { should == 200 }
-  its(:content_type) { should == 'application/json' }
-  its(:body)         { should include '"access_token":"access_token"' }
-  its(:body)         { should include '"token_type":"bearer"' }
+  context 'status' do
+    it { expect(subject.status).to eq 200 }
+  end
+  context 'content_type' do
+    it { expect(subject.content_type).to eq 'application/json' }
+  end
+  context 'body' do
+    it { expect(subject.body).to include '"access_token":"access_token"' }
+    it { expect(subject.body).to include '"token_type":"bearer"' }
+  end
 
   [:username, :password].each do |required|
     context "when #{required} is missing" do
@@ -29,9 +35,16 @@ describe APICop::OAuth2::Server::Token::Password do
           key == required
         end
       end
-      its(:status)       { should == 400 }
-      its(:content_type) { should == 'application/json' }
-      its(:body)         { should include '"error":"invalid_request"' }
+
+      context 'status' do
+        it { expect(subject.status).to eq 400 }
+      end
+      context 'content_type' do
+        it { expect(subject.content_type).to eq 'application/json' }
+      end
+      context 'body' do
+        it { expect(subject.body).to include '"error":"invalid_request"' }
+      end
     end
   end
 end

@@ -204,11 +204,11 @@ describe APICop::OAuth2::Server::Authorize do
         end
       end
 
-      its(:extensions) do
-        should == [
-          APICop::OAuth2::Server::Authorize::Extension::CodeAndToken,
-          APICop::OAuth2::Server::Authorize::Extension::IdToken
-        ]
+      context 'extensions' do
+        it { expect(subject.send(:extensions)).to eq [
+                                                       APICop::OAuth2::Server::Authorize::Extension::CodeAndToken,
+                                                       APICop::OAuth2::Server::Authorize::Extension::IdToken
+                                                     ] }
       end
 
       let(:response_type) { 'id_token' }

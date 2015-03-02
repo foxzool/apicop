@@ -6,12 +6,12 @@ describe APICop::OAuth2::AccessToken::MAC::Verifier do
 
   context 'when "hmac-sha-1" is specified' do
     let(:algorithm) { 'hmac-sha-1' }
-    its(:hash_generator) { should be_instance_of OpenSSL::Digest::SHA1 }
+    it { expect(subject.send(:hash_generator)).to be_instance_of OpenSSL::Digest::SHA1 }
   end
 
   context 'when "hmac-sha-256" is specified' do
     let(:algorithm) { 'hmac-sha-256' }
-    its(:hash_generator) { should be_instance_of OpenSSL::Digest::SHA256 }
+    it { expect(subject.send(:hash_generator)).to be_instance_of OpenSSL::Digest::SHA256 }
   end
 
   context 'otherwise' do
@@ -21,5 +21,5 @@ describe APICop::OAuth2::AccessToken::MAC::Verifier do
     end
   end
 
-  
+
 end

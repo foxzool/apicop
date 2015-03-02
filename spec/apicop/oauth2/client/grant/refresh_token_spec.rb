@@ -5,11 +5,11 @@ describe APICop::OAuth2::Client::Grant::RefreshToken do
 
   context 'when refresh_token is given' do
     let :attributes do
-      {:refresh_token => 'refresh_token'}
+      { :refresh_token => 'refresh_token' }
     end
     subject { grant.new attributes }
-    its(:as_json) do
-      should == {:grant_type => :refresh_token, :refresh_token => 'refresh_token'}
+    context '#as_json' do
+      it { expect(subject.as_json).to eq({ :grant_type => :refresh_token, :refresh_token => 'refresh_token' }) }
     end
   end
 

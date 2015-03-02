@@ -5,7 +5,6 @@ SimpleCov.start do
 end
 
 require 'rspec'
-require 'rspec/its'
 require 'apicop/oauth2'
 
 RSpec.configure do |config|

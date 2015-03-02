@@ -7,11 +7,11 @@ describe APICop::OAuth2::AccessToken::Legacy do
     )
   end
   let(:resource_endpoint) { 'https://server.example.com/resources/fake' }
-  let(:request) { HTTPClient.new.send(:create_request, :post, URI.parse(resource_endpoint), {}, {:hello => "world"}, {}) }
+  let(:request) { HTTPClient.new.send(:create_request, :post, URI.parse(resource_endpoint), {}, { :hello => "world" }, {}) }
 
   describe '#to_s' do
     subject { token }
-    its(:to_s) { should == token.access_token }
+    it { expect(subject.to_s).to eq token.access_token }
   end
 
   describe '.authenticate' do
