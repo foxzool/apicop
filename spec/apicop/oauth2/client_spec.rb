@@ -11,10 +11,18 @@ describe APICop::OAuth2::Client do
   end
   subject { client }
 
-  its(:identifier) { should == 'client_id' }
-  its(:secret)     { should == 'client_secret' }
-  its(:authorization_endpoint) { should == '/oauth2/authorize' }
-  its(:token_endpoint)         { should == '/oauth2/token' }
+  context '#indentifier' do
+    it { expect(subject.identifier).to eq 'client_id' }
+  end
+  context '#secret' do
+    it { expect(subject.secret).to eq 'client_secret' }
+  end
+  context '#authorization_endpoint' do
+    it { expect(subject.authorization_endpoint).to eq '/oauth2/authorize' }
+  end
+  context '#token_endpoint' do
+    it { expect(subject.token_endpoint).to eq '/oauth2/token' }
+  end
 
   context 'when identifier is missing' do
     it do
@@ -24,56 +32,64 @@ describe APICop::OAuth2::Client do
 
   describe '#authorization_uri' do
     subject { client.authorization_uri }
-    it { should include 'https://server.example.com/oauth2/authorize' }
-    it { should include 'client_id=client_id' }
-    it { should include 'redirect_uri=https%3A%2F%2Fclient.example.com%2Fcallback' }
-    it { should include 'response_type=code' }
+    it { is_expected.to include 'https://server.example.com/oauth2/authorize' }
+    it { is_expected.to include 'client_id=client_id' }
+    it { is_expected.to include 'redirect_uri=https%3A%2F%2Fclient.example.com%2Fcallback' }
+    it { is_expected.to include 'response_type=code' }
 
     context 'when endpoints are absolute URIs' do
       before do
         client.authorization_endpoint = 'https://server2.example.com/oauth/authorize'
         client.token_endpoint = 'https://server2.example.com/oauth/token'
       end
-      it { should include 'https://server2.example.com/oauth/authorize' }
+      it { is_expected.to include 'https://server2.example.com/oauth/authorize' }
+    end
+
+    context 'when endpoints are relative URIs' do
+      before do
+        client.authorization_endpoint = '/oauth/authorize'
+        client.token_endpoint = '/oauth/token'
+      end
+      it { is_expected.to include 'https://server.example.com/oauth/authorize' }
     end
 
     context 'when scheme is specified' do
       before { client.scheme = 'http' }
-      it { should include 'http://server.example.com/oauth2/authorize' }
+      it { is_expected.to include 'http://server.example.com/oauth2/authorize' }
     end
 
     context 'when response_type is token' do
       subject { client.authorization_uri(:response_type => :token) }
-      it { should include 'response_type=token' }
+      it { is_expected.to include 'response_type=token' }
     end
 
     context 'when response_type is an Array' do
       subject { client.authorization_uri(:response_type => [:token, :code]) }
-      it { should include 'response_type=token+code' }
+      it { is_expected.to include 'response_type=token+code' }
     end
 
     context 'when scope is given' do
       subject { client.authorization_uri(:scope => [:scope1, :scope2]) }
-      it { should include 'scope=scope1+scope2' }
+      it { is_expected.to include 'scope=scope1+scope2' }
     end
   end
 
   describe '#authorization_code=' do
-    before  { client.authorization_code = 'code' }
+    before { client.authorization_code = 'code' }
     subject { client.instance_variable_get('@grant') }
-    it { should be_instance_of APICop::OAuth2::Client::Grant::AuthorizationCode }
+    it { is_expected.to be_instance_of APICop::OAuth2::Client::Grant::AuthorizationCode }
   end
 
   describe '#resource_owner_credentials=' do
-    before  { client.resource_owner_credentials = 'username', 'password' }
+    before { client.resource_owner_credentials = 'username', 'password' }
     subject { client.instance_variable_get('@grant') }
-    it { should be_instance_of APICop::OAuth2::Client::Grant::Password }
+    it { is_expected.to be_instance_of APICop::OAuth2::Client::Grant::Password }
   end
 
   describe '#refresh_token=' do
-    before  { client.refresh_token = 'refresh_token' }
+    before { client.refresh_token = 'refresh_token' }
     subject { client.instance_variable_get('@grant') }
-    it { should be_instance_of APICop::OAuth2::Client::Grant::RefreshToken }
+    it { is_expected.to be_instance_of APICop::OAuth2::Client::Grant::RefreshToken }
   end
 
   describe '#access_token!' do
@@ -133,7 +149,7 @@ describe APICop::OAuth2::Client do
     end
 
     context 'when bearer token is given' do
-      before  do
+      before do
         client.authorization_code = 'code'
         mock_response(
           :post,
@@ -141,14 +157,22 @@ describe APICop::OAuth2::Client do
           'tokens/bearer.json'
         )
       end
-      it { should be_instance_of APICop::OAuth2::AccessToken::Bearer }
-      its(:token_type) { should == :bearer }
-      its(:access_token) { should == 'access_token' }
-      its(:refresh_token) { should == 'refresh_token' }
-      its(:expires_in) { should == 3600 }
+      it { is_expected.to be_instance_of APICop::OAuth2::AccessToken::Bearer }
+      context "#token_type" do
+        it { expect(subject.token_type).to eq :bearer }
+      end
+      context "#access_token" do
+        it { expect(subject.access_token).to eq 'access_token' }
+      end
+      context "#refresh_token" do
+        it { expect(subject.refresh_token).to eq 'refresh_token' }
+      end
+      context "#expires_in" do
+        it { expect(subject.expires_in).to eq 3600 }
+      end
 
       context 'when token type is "Bearer", not "bearer"' do
-        before  do
+        before do
           client.authorization_code = 'code'
           mock_response(
             :post,
@@ -156,13 +180,15 @@ describe APICop::OAuth2::Client do
             'tokens/_Bearer.json'
           )
         end
-        it { should be_instance_of APICop::OAuth2::AccessToken::Bearer }
-        its(:token_type) { should == :bearer }
+        it { is_expected.to be_instance_of APICop::OAuth2::AccessToken::Bearer }
+        context "#token_type" do
+          it { expect(subject.token_type).to eq :bearer }
+        end
       end
     end
 
     context 'when mac token is given' do
-      before  do
+      before do
         client.authorization_code = 'code'
         mock_response(
           :post,
@@ -170,15 +196,23 @@ describe APICop::OAuth2::Client do
           'tokens/mac.json'
         )
       end
-      it { should be_instance_of APICop::OAuth2::AccessToken::MAC }
-      its(:token_type) { should == :mac }
-      its(:access_token) { should == 'access_token' }
-      its(:refresh_token) { should == 'refresh_token' }
-      its(:expires_in) { should == 3600 }
+      it { is_expected.to be_instance_of APICop::OAuth2::AccessToken::MAC }
+      context '#token_type' do
+        it { expect(subject.token_type).to eq :mac }
+      end
+      context '#access_token' do
+        it { expect(subject.access_token).to eq 'access_token' }
+      end
+      context '#refresh_token' do
+        it { expect(subject.refresh_token).to eq 'refresh_token' }
+      end
+      context "#expires_in" do
+        it { expect(subject.expires_in).to eq 3600 }
+      end
     end
 
     context 'when no-type token is given (JSON)' do
-      before  do
+      before do
         client.authorization_code = 'code'
         mock_response(
           :post,
@@ -186,11 +220,19 @@ describe APICop::OAuth2::Client do
           'tokens/legacy.json'
         )
       end
-      it { should be_instance_of APICop::OAuth2::AccessToken::Legacy }
-      its(:token_type) { should == :legacy }
-      its(:access_token) { should == 'access_token' }
-      its(:refresh_token) { should == 'refresh_token' }
-      its(:expires_in) { should == 3600 }
+      it { is_expected.to be_instance_of APICop::OAuth2::AccessToken::Legacy }
+      context '#token_type' do
+        it { expect(subject.token_type).to eq :legacy }
+      end
+      context '#access_token' do
+        it { expect(subject.access_token).to eq 'access_token' }
+      end
+      context '#refresh_token' do
+        it { expect(subject.refresh_token).to eq 'refresh_token' }
+      end
+      context "#expires_in" do
+        it { expect(subject.expires_in).to eq 3600 }
+      end
     end
 
     context 'when no-type token is given (key-value)' do
@@ -201,10 +243,16 @@ describe APICop::OAuth2::Client do
           'tokens/legacy.txt'
         )
       end
-      it { should be_instance_of APICop::OAuth2::AccessToken::Legacy }
-      its(:token_type) { should == :legacy }
-      its(:access_token) { should == 'access_token' }
-      its(:expires_in) { should == 3600 }
+      it { is_expected.to be_instance_of APICop::OAuth2::AccessToken::Legacy }
+      context '#token_type' do
+        it { expect(subject.token_type).to eq :legacy }
+      end
+      context '#access_token' do
+        it { expect(subject.access_token).to eq 'access_token' }
+      end
+      context "#expires_in" do
+        it { expect(subject.expires_in).to eq 3600 }
+      end
 
       context 'when expires_in is not given' do
         before do
@@ -214,12 +262,14 @@ describe APICop::OAuth2::Client do
             'tokens/legacy_without_expires_in.txt'
           )
         end
-        its(:expires_in) { should be_nil }
+        context "#expires_in" do
+          it { expect(subject.expires_in).to be_nil }
+        end
       end
     end
 
     context 'when unknown-type token is given' do
-      before  do
+      before do
         client.authorization_code = 'code'
         mock_response(
           :post,
