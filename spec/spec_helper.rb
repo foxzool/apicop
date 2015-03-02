@@ -1,12 +1,24 @@
-require 'rubygems'
-require 'bundler'
-Bundler.setup :default, :test
+require 'simplecov'
+
+SimpleCov.start do
+  add_filter 'spec'
+end
 
 require 'rspec'
-require 'rack/test'
-
-require 'apicop'
+require 'rspec/its'
+require 'apicop/oauth2'
 
 RSpec.configure do |config|
-  config.include Rack::Test::Methods
+  config.expect_with :rspec do |c|
+    c.syntax = [:should, :expect]
+  end
+end
+
+require 'helpers/time'
+require 'helpers/webmock_helper'
+
+def simple_app
+  lambda do |env|
+    [ 200, {'Content-Type' => 'text/plain'}, ["HELLO"] ]
+  end
 end

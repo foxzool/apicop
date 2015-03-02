@@ -1,23 +1,23 @@
-require 'rubygems'
 require 'bundler'
-Bundler.setup :default, :spec, :development
-
 Bundler::GemHelper.install_tasks
 
 require 'rspec/core/rake_task'
-RSpec::Core::RakeTask.new(:spec) do |spec|
-  spec.pattern = 'spec/**/*_spec.rb'
+RSpec::Core::RakeTask.new(:spec)
+
+namespace :coverage do
+  desc "Open coverage report"
+  task :report do
+    require 'simplecov'
+    `open "#{File.join SimpleCov.coverage_path, 'index.html'}"`
+  end
 end
 
-RSpec::Core::RakeTask.new(:rcov) do |spec|
-  spec.pattern = 'spec/**/*_spec.rb'
-  spec.rcov = true
+task :spec do
+  Rake::Task[:'coverage:report'].invoke unless ENV['TRAVIS_RUBY_VERSION']
 end
-
-task :spec
 
 require 'rainbow/ext/string' unless String.respond_to?(:color)
 require 'rubocop/rake_task'
 RuboCop::RakeTask.new
 
-task default: [:rubocop, :spec]
+task default: :spec

@@ -9,8 +9,8 @@ Gem::Specification.new do |spec|
   spec.authors = ["ZoOL"]
   spec.email = ["zhooul@gmail.com"]
 
-  spec.summary = %q{ a REST like oauth2 api server }
-  spec.description = %q{  Authorization Server solution and Resource Server Guard solution}
+  spec.summary = %q{ a REST-like OAuth2 api server with grape }
+  spec.description = %q{  Authorization Server and Resource Server Guard solution}
   spec.homepage = "https://github.com/foxzool/apicop"
   spec.license = "MIT"
 
@@ -20,14 +20,17 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_runtime_dependency 'grape'
-  spec.add_runtime_dependency 'warden', '~> 1.0'
   spec.add_runtime_dependency "rack", ">= 1.1"
   spec.add_runtime_dependency "multi_json", ">= 1.3.6"
   spec.add_runtime_dependency "httpclient", ">= 2.4"
   spec.add_runtime_dependency "activesupport", ">= 2.3"
+  spec.add_runtime_dependency "attr_required", ">= 0.0.5"
   spec.add_development_dependency "bundler", "~> 1.8"
   spec.add_development_dependency "rake", "~> 10.0"
   spec.add_development_dependency "rack-test"
   spec.add_development_dependency "rspec"
+  spec.add_development_dependency "rubocop"
+  spec.add_development_dependency "rspec-its"
+  spec.add_development_dependency "webmock"
   spec.add_development_dependency "simplecov"
 end
