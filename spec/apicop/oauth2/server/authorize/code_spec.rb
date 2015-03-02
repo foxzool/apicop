@@ -1,10 +1,10 @@
 require 'spec_helper.rb'
 
 describe APICop::OAuth2::Server::Authorize::Code do
-  let(:request)            { Rack::MockRequest.new app }
-  let(:redirect_uri)       { 'http://client.example.com/callback' }
-  let(:authorization_code) { 'authorization_code' }  
-  let(:response)           { request.get "/?response_type=code&client_id=client&redirect_uri=#{redirect_uri}&state=state" }
+  let(:request) { Rack::MockRequest.new app }
+  let(:redirect_uri) { 'http://client.example.com/callback' }
+  let(:authorization_code) { 'authorization_code' }
+  let(:response) { request.get "/?response_type=code&client_id=client&redirect_uri=#{redirect_uri}&state=state" }
 
   context 'when approved' do
     subject { response }
@@ -15,12 +15,18 @@ describe APICop::OAuth2::Server::Authorize::Code do
         response.approve!
       end
     end
-    its(:status)   { should == 302 }
-    its(:location) { should == "#{redirect_uri}?code=#{authorization_code}&state=state" }
+    context 'status' do
+      it { expect(subject.status).to eq 302 }
+    end
+    context 'location' do
+      it { expect(subject.location).to eq "#{redirect_uri}?code=#{authorization_code}&state=state" }
+    end
 
     context 'when redirect_uri already includes query' do
       let(:redirect_uri) { 'http://client.example.com/callback?k=v' }
-      its(:location)     { should == "#{redirect_uri}&code=#{authorization_code}&state=state" }
+      context 'location' do
+        it { expect(subject.location).to eq "#{redirect_uri}&code=#{authorization_code}&state=state" }
+      end
     end
 
     context 'when redirect_uri is missing' do
@@ -46,12 +52,12 @@ describe APICop::OAuth2::Server::Authorize::Code do
       end
     end
     it 'should redirect with error in query' do
-      response.status.should == 302
+      expect(response.status).to eq 302
       error_message = {
         :error => :access_denied,
         :error_description => APICop::OAuth2::Server::Authorize::ErrorMethods::DEFAULT_DESCRIPTION[:access_denied]
       }
-      response.location.should == "#{redirect_uri}?#{error_message.to_query}&state=state"
+      expect(response.location).to eq "#{redirect_uri}?#{error_message.to_query}&state=state"
     end
   end
 end

@@ -67,7 +67,7 @@ describe APICop::OAuth2::AccessToken do
     context 'in debug mode' do
       it do
         APICop::OAuth2.debug do
-          token.httpclient.request_filter[-2].should be_a APICop::OAuth2::AccessToken::Authenticator
+          expect(token.httpclient.request_filter[-2]).to be_a APICop::OAuth2::AccessToken::Authenticator
           expect(token.httpclient.request_filter[-2]).to be_a APICop::OAuth2::AccessToken::Authenticator
         end
       end

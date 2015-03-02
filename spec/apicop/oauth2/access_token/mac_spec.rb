@@ -23,20 +23,26 @@ describe APICop::OAuth2::AccessToken::MAC do
   let(:resource_endpoint) { 'https://server.example.com/resources/fake' }
   subject { token }
 
-  its(:mac_key)    { should == 'secret' }
-  its(:mac_algorithm) { should == 'hmac-sha-256' }
-  its(:token_response) do
-    should == {
-      :access_token => 'access_token',
-      :refresh_token => nil,
-      :token_type => :mac,
-      :expires_in => nil,
-      :scope => '',
-      :mac_key => 'secret',
-      :mac_algorithm => 'hmac-sha-256'
-    }
+  context 'mac_key' do
+    it { expect(subject.mac_key).to eq 'secret' }
   end
-  its(:generate_nonce) { should be_a String }
+  context 'mac_algorithm' do
+    it { expect(subject.mac_algorithm).to eq 'hmac-sha-256' }
+  end
+  context 'token_response' do
+    it { expect(subject.token_response).to eq({
+                                                :access_token => 'access_token',
+                                                :refresh_token => nil,
+                                                :token_type => :mac,
+                                                :expires_in => nil,
+                                                :scope => '',
+                                                :mac_key => 'secret',
+                                                :mac_algorithm => 'hmac-sha-256'
+                                              }) }
+  end
+  context 'generate_nonce' do
+    it { expect(subject.send(:generate_nonce)).to be_a String }
+  end
 
   describe 'verify!' do
     let(:request) { APICop::OAuth2::Server::Resource::MAC::Request.new(env) }
@@ -52,8 +58,7 @@ describe APICop::OAuth2::AccessToken::MAC do
       context 'when signature is valid' do
         let(:signature) { 'BgooS/voPOZWLwoVfx4+zbC3xAVKW3jtjhKYOfIGZOA=' }
         it do
-
-          token.verify!(request.setup!).should == :verified
+          expect(token.verify!(request.setup!)).to eq :verified
         end
       end
 
@@ -61,9 +66,9 @@ describe APICop::OAuth2::AccessToken::MAC do
         let(:signature) { 'invalid' }
         it do
           expect { token.verify!(request.setup!) }.to raise_error(
-            APICop::OAuth2::Server::Resource::MAC::Unauthorized,
-            'invalid_token :: Signature Invalid'
-          )
+                                                        APICop::OAuth2::Server::Resource::MAC::Unauthorized,
+                                                        'invalid_token :: Signature Invalid'
+                                                      )
         end
       end
     end
@@ -85,9 +90,9 @@ describe APICop::OAuth2::AccessToken::MAC do
         let(:ext) { 'invalid' }
         it do
           expect { token_with_ext_verifier.verify!(request.setup!) }.to raise_error(
-            APICop::OAuth2::Server::Resource::MAC::Unauthorized,
-            'invalid_token :: Sha256HexVerifier Invalid'
-          )
+                                                                          APICop::OAuth2::Server::Resource::MAC::Unauthorized,
+                                                                          'invalid_token :: Sha256HexVerifier Invalid'
+                                                                        )
         end
       end
 
@@ -98,7 +103,7 @@ describe APICop::OAuth2::AccessToken::MAC do
           let(:signature) { 'dZYR54n+Lym5qCRRmDqmRZ71rG+bkjSWmqrOv8OjYHk=' }
           it do
             Time.fix(Time.at(1302361200)) do
-              token_with_ext_verifier.verify!(request.setup!).should == :verified
+              expect(token_with_ext_verifier.verify!(request.setup!)).to eq :verified
             end
           end
         end
@@ -106,9 +111,9 @@ describe APICop::OAuth2::AccessToken::MAC do
         context 'otherwise' do
           it do
             expect { token.verify!(request.setup!) }.to raise_error(
-              APICop::OAuth2::Server::Resource::MAC::Unauthorized,
-              'invalid_token :: Signature Invalid'
-            )
+                                                          APICop::OAuth2::Server::Resource::MAC::Unauthorized,
+                                                          'invalid_token :: Signature Invalid'
+                                                        )
           end
         end
       end
@@ -116,7 +121,7 @@ describe APICop::OAuth2::AccessToken::MAC do
   end
 
   describe '.authenticate' do
-    let(:request) { HTTPClient.new.send(:create_request, :post, URI.parse(resource_endpoint), {}, {:hello => "world"}, {}) }
+    let(:request) { HTTPClient.new.send(:create_request, :post, URI.parse(resource_endpoint), {}, { :hello => "world" }, {}) }
     context 'when no ext_verifier is given' do
       let(:signature) { 'pOBaL6HRawe4tUPmcU4vJEj1f2GJqrbQOlCcdAYgI/s=' }
 

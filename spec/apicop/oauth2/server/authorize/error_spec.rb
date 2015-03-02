@@ -1,18 +1,18 @@
 require 'spec_helper.rb'
 
 describe APICop::OAuth2::Server::Authorize::BadRequest do
-  let(:klass)        { APICop::OAuth2::Server::Authorize::BadRequest }
-  let(:error)        { klass.new(:invalid_request) }
+  let(:klass) { APICop::OAuth2::Server::Authorize::BadRequest }
+  let(:error) { klass.new(:invalid_request) }
   let(:redirect_uri) { 'http://client.example.com/callback' }
 
   subject { error }
-  it { should be_a APICop::OAuth2::Server::Abstract::BadRequest }
+  it { is_expected.to be_a APICop::OAuth2::Server::Abstract::BadRequest }
   its(:protocol_params) do
     should == {
-      :error             => :invalid_request,
+      :error => :invalid_request,
       :error_description => nil,
-      :error_uri         => nil,
-      :state             => nil
+      :error_uri => nil,
+      :state => nil
     }
   end
 
@@ -24,8 +24,8 @@ describe APICop::OAuth2::Server::Authorize::BadRequest do
         before { error.protocol_params_location = :query }
         it 'should redirect with error in query' do
           state, header, response = error.finish
-          state.should == 302
-          header["Location"].should == "#{redirect_uri}?error=invalid_request"
+          expect(state).to eq 302
+          expect(header["Location"]).to eq "#{redirect_uri}?error=invalid_request"
         end
       end
 
@@ -33,8 +33,8 @@ describe APICop::OAuth2::Server::Authorize::BadRequest do
         before { error.protocol_params_location = :fragment }
         it 'should redirect with error in fragment' do
           state, header, response = error.finish
-          state.should == 302
-          header["Location"].should == "#{redirect_uri}#error=invalid_request"
+          expect(state).to eq 302
+          expect(header["Location"]).to eq "#{redirect_uri}#error=invalid_request"
         end
       end
 
@@ -42,30 +42,28 @@ describe APICop::OAuth2::Server::Authorize::BadRequest do
         before { error.protocol_params_location = :other }
         it 'should redirect without error' do
           state, header, response = error.finish
-          state.should == 302
-          header["Location"].should == redirect_uri
+          expect(state).to eq 302
+          expect(header["Location"]).to eq redirect_uri
         end
       end
     end
 
     context 'otherwise' do
       it 'should raise itself' do
-        expect { error.finish }.to raise_error(klass) { |e|
-          e.should == error
-        }
+        expect { error.finish }.to raise_error(klass) { |e| expect(e).to eq error }
       end
     end
   end
 end
 
 describe APICop::OAuth2::Server::Authorize::ErrorMethods do
-  let(:klass)               { APICop::OAuth2::Server::Authorize::BadRequest }
-  let(:redirect_uri)        { 'http://client.example.com/callback' }
+  let(:klass) { APICop::OAuth2::Server::Authorize::BadRequest }
+  let(:redirect_uri) { 'http://client.example.com/callback' }
   let(:default_description) { APICop::OAuth2::Server::Authorize::ErrorMethods::DEFAULT_DESCRIPTION }
-  let(:env)                 { Rack::MockRequest.env_for("/authorize?client_id=client_id") }
-  let(:request)             { APICop::OAuth2::Server::Authorize::Request.new env }
-  let(:request_for_code)    { APICop::OAuth2::Server::Authorize::Code::Request.new env }
-  let(:request_for_token)   { APICop::OAuth2::Server::Authorize::Token::Request.new env }
+  let(:env) { Rack::MockRequest.env_for("/authorize?client_id=client_id") }
+  let(:request) { APICop::OAuth2::Server::Authorize::Request.new env }
+  let(:request_for_code) { APICop::OAuth2::Server::Authorize::Code::Request.new env }
+  let(:request_for_token) { APICop::OAuth2::Server::Authorize::Token::Request.new env }
 
   describe 'bad_request!' do
     it do
@@ -75,16 +73,16 @@ describe APICop::OAuth2::Server::Authorize::ErrorMethods do
     context 'when response_type = :code' do
       it 'should set protocol_params_location = :query' do
         expect { request_for_code.bad_request! }.to raise_error(klass) { |e|
-          e.protocol_params_location.should == :query
-        }
+                                                      expect(e.protocol_params_location).to eq :query
+                                                    }
       end
     end
 
     context 'when response_type = :token' do
       it 'should set protocol_params_location = :fragment' do
         expect { request_for_token.bad_request! }.to raise_error(klass) { |e|
-          e.protocol_params_location.should == :fragment
-        }
+                                                       expect(e.protocol_params_location).to eq :fragment
+                                                     }
       end
     end
   end
@@ -92,20 +90,20 @@ describe APICop::OAuth2::Server::Authorize::ErrorMethods do
   APICop::OAuth2::Server::Authorize::ErrorMethods::DEFAULT_DESCRIPTION.keys.each do |error_code|
     method = "#{error_code}!"
     klass = case error_code
-    when :server_error
-      APICop::OAuth2::Server::Authorize::ServerError
-    when :temporarily_unavailable
-      APICop::OAuth2::Server::Authorize::TemporarilyUnavailable
-    else
-      APICop::OAuth2::Server::Authorize::BadRequest
-    end
+            when :server_error
+              APICop::OAuth2::Server::Authorize::ServerError
+            when :temporarily_unavailable
+              APICop::OAuth2::Server::Authorize::TemporarilyUnavailable
+            else
+              APICop::OAuth2::Server::Authorize::BadRequest
+            end
     describe method do
       it "should raise #{klass} with error = :#{error_code}" do
         klass =
-        expect { request.send method }.to raise_error(klass) { |error|
-          error.error.should       == error_code
-          error.description.should == default_description[error_code]
-        }
+          expect { request.send method }.to raise_error(klass) { |error|
+                                              expect(error.error).to eq error_code
+                                              expect(error.description).to eq default_description[error_code]
+                                            }
       end
     end
   end
