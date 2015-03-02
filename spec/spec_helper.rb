@@ -9,9 +9,7 @@ require 'rspec/its'
 require 'apicop/oauth2'
 
 RSpec.configure do |config|
-  config.expect_with :rspec do |c|
-    c.syntax = [:should, :expect]
-  end
+  config.raise_errors_for_deprecations!
 end
 
 require 'helpers/time'
