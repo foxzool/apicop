@@ -14,7 +14,7 @@ module APICop
 
             def call(env)
               @request  = Request.new env
-              @response = Rack::Response.new request
+              @response = Token::Response.new request
               super
             end
 

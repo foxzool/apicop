@@ -5,7 +5,7 @@ module APICop
         class Password < Abstract::Handler
           def call(env)
             @request  = Request.new(env)
-            @response = Token::Response.new(request)
+            @response = Response.new(request)
             super
           end
 

@@ -28,9 +28,9 @@ describe APICop::OAuth2::Server::Token do
         )
       end
       it 'should fail with unsupported_grant_type' do
-        status, header, response = app.call(env)
-        status.should == 400
-        response.body.first.should include '"error":"invalid_request"'
+        status, _header, response = app.call(env)
+        expect(status).to eq 400
+        expect(response.body.first).to include '"error":"invalid_request"'
       end
     end
 
@@ -43,8 +43,8 @@ describe APICop::OAuth2::Server::Token do
         )
       end
       it 'should ignore duplicates' do
-        status, header, response = app.call(env)
-        status.should == 200
+        status, _header, _response = app.call(env)
+        expect(status).to eq 200
       end
     end
   end
@@ -53,9 +53,15 @@ describe APICop::OAuth2::Server::Token do
     before do
       params.merge!(:grant_type => 'unknown')
     end
-    its(:status)       { should == 400 }
-    its(:content_type) { should == 'application/json' }
-    its(:body)         { should include '"error":"unsupported_grant_type"' }
+    context '#status' do
+      it { expect(subject.status).to eq 400 }
+    end
+    context '#content_type' do
+      it { expect(subject.content_type).to eq 'application/json' }
+    end
+    context '#body' do
+      it { expect(subject.body).to include '"error":"unsupported_grant_type"' }
+    end
   end
 
   [:client_id, :grant_type].each do |required|
@@ -65,28 +71,41 @@ describe APICop::OAuth2::Server::Token do
           key == required
         end
       end
-      its(:status)       { should == 400 }
-      its(:content_type) { should == 'application/json' }
-      its(:body)         { should include '"error":"invalid_request"' }
+      context '#status' do
+        it { expect(subject.status).to eq 400 }
+      end
+      context '#content_type' do
+        it { expect(subject.content_type).to eq 'application/json' }
+      end
+      context '#body' do
+        it { expect(subject.body).to include '"error":"invalid_request"' }
+      end
     end
   end
 
   APICop::OAuth2::Server::Token::ErrorMethods::DEFAULT_DESCRIPTION.each do |error, default_message|
     status = if error == :invalid_client
-      401
-    else
-      400
-    end
+               401
+             else
+               400
+             end
     context "when #{error}" do
       let(:app) do
         APICop::OAuth2::Server::Token.new do |request, response|
           request.send "#{error}!"
         end
       end
-      its(:status)       { should == status }
-      its(:content_type) { should == 'application/json' }
-      its(:body)         { should include "\"error\":\"#{error}\"" }
-      its(:body)         { should include "\"error_description\":\"#{default_message}\"" }
+
+      context '#status' do
+        it { expect(subject.status).to eq status }
+      end
+      context '#content_type' do
+        it { expect(subject.content_type).to eq 'application/json' }
+      end
+      context '#body' do
+        it { expect(subject.body).to include "\"error\":\"#{error}\"" }
+        it { expect(subject.body).to include "\"error_description\":\"#{default_message}\"" }
+      end
     end
   end
 
@@ -114,7 +133,9 @@ describe APICop::OAuth2::Server::Token do
       )
     end
     let(:request) { APICop::OAuth2::Server::Token::Request.new env }
-    its(:extensions) { should == [APICop::OAuth2::Server::Token::Extension::JWT] }
+    context '#extensions' do
+      it { expect(subject.send(:extensions)).to eq [APICop::OAuth2::Server::Token::Extension::JWT] }
+    end
 
     describe 'JWT assertion' do
       let(:params) do
@@ -125,9 +146,11 @@ describe APICop::OAuth2::Server::Token do
       end
 
       it do
-        app.send(
-          :grant_type_for, request
-        ).should == APICop::OAuth2::Server::Token::Extension::JWT
+        expect(
+          app.send(
+            :grant_type_for, request
+          )
+        ).to eq APICop::OAuth2::Server::Token::Extension::JWT
       end
     end
   end
