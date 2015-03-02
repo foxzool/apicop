@@ -3,27 +3,29 @@ require 'spec_helper.rb'
 describe APICop::OAuth2::Server::Resource::MAC::Unauthorized do
   let(:error) { APICop::OAuth2::Server::Resource::MAC::Unauthorized.new(:invalid_token) }
 
-  it { should be_a APICop::OAuth2::Server::Resource::Unauthorized }
+  it { is_expected.to be_a APICop::OAuth2::Server::Resource::Unauthorized }
 
   describe '#scheme' do
     subject { error }
-    its(:scheme) { should == :MAC }
+    context 'scheme' do
+      it { expect(subject.scheme).to eq :MAC }
+    end
   end
 
   describe '#finish' do
     it 'should use MAC scheme' do
       status, header, response = error.finish
-      header['WWW-Authenticate'].should =~ /^MAC /
+      expect(header['WWW-Authenticate']).to match /^MAC /
     end
   end
 end
 
 describe APICop::OAuth2::Server::Resource::MAC::ErrorMethods do
-  let(:unauthorized)        { APICop::OAuth2::Server::Resource::MAC::Unauthorized }
-  let(:redirect_uri)        { 'http://client.example.com/callback' }
+  let(:unauthorized) { APICop::OAuth2::Server::Resource::MAC::Unauthorized }
+  let(:redirect_uri) { 'http://client.example.com/callback' }
   let(:default_description) { APICop::OAuth2::Server::Resource::ErrorMethods::DEFAULT_DESCRIPTION }
-  let(:env)                 { Rack::MockRequest.env_for("/authorize?client_id=client_id") }
-  let(:request)             { APICop::OAuth2::Server::Resource::MAC::Request.new env }
+  let(:env) { Rack::MockRequest.env_for("/authorize?client_id=client_id") }
+  let(:request) { APICop::OAuth2::Server::Resource::MAC::Request.new env }
 
   describe 'unauthorized!' do
     it do
@@ -42,9 +44,9 @@ describe APICop::OAuth2::Server::Resource::MAC::ErrorMethods do
       describe method do
         it "should raise APICop::OAuth2::Server::Resource::Bearer::Unauthorized with error = :#{error_code}" do
           expect { request.send method }.to raise_error(unauthorized) { |error|
-            error.error.should       == error_code
-            error.description.should == default_description[error_code]
-          }
+                                              expect(error.error).to eq error_code
+                                              expect(error.description).to eq default_description[error_code]
+                                            }
         end
       end
     end

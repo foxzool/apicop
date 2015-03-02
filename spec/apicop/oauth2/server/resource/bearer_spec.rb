@@ -23,30 +23,30 @@ describe APICop::OAuth2::Server::Resource::Bearer do
   shared_examples_for :authenticated_bearer_request do
     it 'should be authenticated' do
       status, header, response = request
-      status.should == 200
-      access_token.should == bearer_token
+      expect(status).to eq 200
+      expect(access_token).to eq bearer_token
     end
   end
   shared_examples_for :unauthorized_bearer_request do
     it 'should be unauthorized' do
       status, header, response = request
-      status.should == 401
-      header['WWW-Authenticate'].should include 'Bearer'
-      access_token.should be_nil
+      expect(status).to eq 401
+      expect(header['WWW-Authenticate']).to include 'Bearer'
+      expect(access_token).to be_nil
     end
   end
   shared_examples_for :bad_bearer_request do
     it 'should be bad_request' do
       status, header, response = request
-      status.should == 400
-      access_token.should be_nil
+      expect(status).to eq 400
+      expect(access_token).to be_nil
     end
   end
   shared_examples_for :skipped_authentication_request do
     it 'should skip OAuth 2.0 authentication' do
       status, header, response = request
-      status.should == 200
-      access_token.should be_nil
+      expect(status).to eq 200
+      expect(access_token).to be_nil
     end
   end
 
@@ -62,7 +62,7 @@ describe APICop::OAuth2::Server::Resource::Bearer do
     end
 
     context 'when token is in params' do
-      let(:env) { Rack::MockRequest.env_for('/protected_resource', :params => {:access_token => 'valid_token'}) }
+      let(:env) { Rack::MockRequest.env_for('/protected_resource', :params => { :access_token => 'valid_token' }) }
       it_behaves_like :authenticated_bearer_request
     end
   end
@@ -80,7 +80,7 @@ describe APICop::OAuth2::Server::Resource::Bearer do
     end
 
     context 'when token is in params' do
-      let(:env) { Rack::MockRequest.env_for('/protected_resource', :params => {:access_token => 'invalid_token'}) }
+      let(:env) { Rack::MockRequest.env_for('/protected_resource', :params => { :access_token => 'invalid_token' }) }
       it_behaves_like :unauthorized_bearer_request
     end
 
@@ -95,14 +95,14 @@ describe APICop::OAuth2::Server::Resource::Bearer do
         end
         it 'should use specified realm' do
           status, header, response = request
-          header['WWW-Authenticate'].should include "Bearer realm=\"#{realm}\""
+          expect(header['WWW-Authenticate']).to include "Bearer realm=\"#{realm}\""
         end
       end
 
       context 'otherwize' do
         it 'should use default realm' do
           status, header, response = request
-          header['WWW-Authenticate'].should include "Bearer realm=\"#{APICop::OAuth2::Server::Resource::Bearer::DEFAULT_REALM}\""
+          expect(header['WWW-Authenticate']).to include "Bearer realm=\"#{APICop::OAuth2::Server::Resource::Bearer::DEFAULT_REALM}\""
         end
       end
     end
@@ -114,7 +114,7 @@ describe APICop::OAuth2::Server::Resource::Bearer do
         Rack::MockRequest.env_for(
           '/protected_resource',
           'HTTP_AUTHORIZATION' => 'Bearer valid_token',
-          :params => {:access_token => 'valid_token'}
+          :params => { :access_token => 'valid_token' }
         )
       end
       it_behaves_like :bad_bearer_request

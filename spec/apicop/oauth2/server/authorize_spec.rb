@@ -1,10 +1,10 @@
 require 'spec_helper.rb'
 
 describe APICop::OAuth2::Server::Authorize do
-  let(:app)          { APICop::OAuth2::Server::Authorize.new }
-  let(:request)      { Rack::MockRequest.new app }
+  let(:app) { APICop::OAuth2::Server::Authorize.new }
+  let(:request) { Rack::MockRequest.new app }
   let(:redirect_uri) { 'http://client.example.com/callback' }
-  let(:bad_request)  { APICop::OAuth2::Server::Authorize::BadRequest }
+  let(:bad_request) { APICop::OAuth2::Server::Authorize::BadRequest }
 
   context 'when response_type is missing' do
     it do
@@ -34,13 +34,15 @@ describe APICop::OAuth2::Server::Authorize do
     [:code, :token].each do |request_type|
       context "when response_type = :#{request_type}" do
         subject { request.get "/?response_type=#{request_type}&client_id=client&redirect_uri=#{redirect_uri}" }
-        its(:status) { should == 200 }
+        context 'status' do
+          it { expect(subject.status).to eq 200 }
+        end
       end
     end
   end
 
   describe APICop::OAuth2::Server::Authorize::Request do
-    let(:env)     { Rack::MockRequest.env_for("/authorize?client_id=client&redirect_uri=#{redirect_uri}") }
+    let(:env) { Rack::MockRequest.env_for("/authorize?client_id=client&redirect_uri=#{redirect_uri}") }
     let(:request) { APICop::OAuth2::Server::Authorize::Request.new env }
 
     describe '#varified_redirect_uri' do
@@ -54,7 +56,7 @@ describe APICop::OAuth2::Server::Authorize do
             ]
           end
           it 'should be valid' do
-            request.verify_redirect_uri!(pre_registered).should == redirect_uri
+            expect(request.verify_redirect_uri!(pre_registered)).to eq redirect_uri
           end
         end
 
@@ -76,7 +78,7 @@ describe APICop::OAuth2::Server::Authorize do
       context 'when exact mathed redirect_uri is given' do
         let(:pre_registered) { redirect_uri }
         it 'should be valid' do
-          request.verify_redirect_uri!(pre_registered).should == redirect_uri
+          expect(request.verify_redirect_uri!(pre_registered)).to eq redirect_uri
         end
       end
 
@@ -85,7 +87,7 @@ describe APICop::OAuth2::Server::Authorize do
 
         context 'when partial matching allowed' do
           it 'should be valid' do
-            request.verify_redirect_uri!(pre_registered, :allow_partial_match).should == redirect_uri
+            expect(request.verify_redirect_uri!(pre_registered, :allow_partial_match)).to eq redirect_uri
           end
         end
 
@@ -113,7 +115,7 @@ describe APICop::OAuth2::Server::Authorize do
         context 'when pre-registered redirect_uri is a String' do
           let(:pre_registered) { redirect_uri }
           it 'should use pre-registered redirect_uri' do
-            request.verify_redirect_uri!(pre_registered).should == pre_registered
+            expect(request.verify_redirect_uri!(pre_registered)).to eq pre_registered
           end
         end
 
@@ -131,7 +133,7 @@ describe APICop::OAuth2::Server::Authorize do
 
             context 'otherwise' do
               it 'should use pre-registered redirect_uri' do
-                request.verify_redirect_uri!(pre_registered).should == pre_registered.first
+                expect(request.verify_redirect_uri!(pre_registered)).to eq pre_registered.first
               end
             end
           end
@@ -158,23 +160,29 @@ describe APICop::OAuth2::Server::Authorize do
       Rack::MockRequest.env_for("/authorize?response_type=#{response_type}&client_id=client")
     end
     let(:request) { APICop::OAuth2::Server::Authorize::Request.new env }
-    its(:extensions) { should == [APICop::OAuth2::Server::Authorize::Extension::CodeAndToken] }
+    context 'extensions' do
+      it { expect(subject.send(:extensions)).to eq [APICop::OAuth2::Server::Authorize::Extension::CodeAndToken] }
+    end
 
     describe 'code token' do
       let(:response_type) { 'code%20token' }
       it do
-        app.send(
-          :response_type_for, request
-        ).should == APICop::OAuth2::Server::Authorize::Extension::CodeAndToken
+        expect(
+          app.send(
+            :response_type_for, request
+          )
+        ).to eq APICop::OAuth2::Server::Authorize::Extension::CodeAndToken
       end
     end
 
     describe 'token code' do
       let(:response_type) { 'token%20code' }
       it do
-        app.send(
-          :response_type_for, request
-        ).should == APICop::OAuth2::Server::Authorize::Extension::CodeAndToken
+        expect(
+          app.send(
+            :response_type_for, request
+          )
+        ).to eq APICop::OAuth2::Server::Authorize::Extension::CodeAndToken
       end
     end
 
@@ -205,9 +213,11 @@ describe APICop::OAuth2::Server::Authorize do
 
       let(:response_type) { 'id_token' }
       it do
-        app.send(
-          :response_type_for, request
-        ).should == APICop::OAuth2::Server::Authorize::Extension::IdToken
+        expect(
+          app.send(
+            :response_type_for, request
+          )
+        ).to eq APICop::OAuth2::Server::Authorize::Extension::IdToken
       end
     end
   end

@@ -2,9 +2,9 @@ require 'spec_helper.rb'
 require 'apicop/oauth2/server/authorize/extension/code_and_token'
 
 describe APICop::OAuth2::Server::Authorize::Extension::CodeAndToken do
-  let(:request)            { Rack::MockRequest.new app }
-  let(:redirect_uri)       { 'http://client.example.com/callback' }
-  let(:access_token)       { 'access_token' }
+  let(:request) { Rack::MockRequest.new app }
+  let(:redirect_uri) { 'http://client.example.com/callback' }
+  let(:access_token) { 'access_token' }
   let(:authorization_code) { 'authorization_code' }
   let(:response) do
     request.get("/?response_type=code%20token&client_id=client&redirect_uri=#{redirect_uri}")
@@ -17,15 +17,20 @@ describe APICop::OAuth2::Server::Authorize::Extension::CodeAndToken do
       APICop::OAuth2::Server::Authorize.new do |request, response|
         response.redirect_uri = redirect_uri
         response.access_token = bearer_token
-        response.code         = authorization_code
+        response.code = authorization_code
         response.approve!
       end
     end
-    its(:status)   { should == 302 }
-    its(:location) { should include "#{redirect_uri}#" }
-    its(:location) { should include "code=#{authorization_code}"}
-    its(:location) { should include "access_token=#{access_token}"}
-    its(:location) { should include 'token_type=bearer' }
+    context 'status' do
+      it { expect(subject.status).to eq 302 }
+    end
+
+    context 'location' do
+      it { expect(subject.location).to include "#{redirect_uri}#" }
+      it { expect(subject.location).to include "code=#{authorization_code}" }
+      it { expect(subject.location).to include "access_token=#{access_token}" }
+      it { expect(subject.location).to include 'token_type=bearer' }
+    end
 
     context 'when refresh_token is given' do
       let :bearer_token do
@@ -34,10 +39,12 @@ describe APICop::OAuth2::Server::Authorize::Extension::CodeAndToken do
           :refresh_token => 'refresh'
         )
       end
-      its(:location) { should include "#{redirect_uri}#" }
-      its(:location) { should include "code=#{authorization_code}"}
-      its(:location) { should include "access_token=#{access_token}"}
-      its(:location) { should include 'token_type=bearer' }
+      context 'location' do
+        it { expect(subject.location).to include "#{redirect_uri}#" }
+        it { expect(subject.location).to include "code=#{authorization_code}" }
+        it { expect(subject.location).to include "access_token=#{access_token}" }
+        it { expect(subject.location).to include 'token_type=bearer' }
+      end
     end
   end
 
@@ -49,12 +56,12 @@ describe APICop::OAuth2::Server::Authorize::Extension::CodeAndToken do
       end
     end
     it 'should redirect with error in fragment' do
-      response.status.should == 302
+      expect(response.status).to eq 302
       error_message = {
         :error => :access_denied,
         :error_description => APICop::OAuth2::Server::Authorize::ErrorMethods::DEFAULT_DESCRIPTION[:access_denied]
       }
-      response.location.should == "#{redirect_uri}##{error_message.to_query}"
+      expect(response.location).to eq "#{redirect_uri}##{error_message.to_query}"
     end
   end
 end
