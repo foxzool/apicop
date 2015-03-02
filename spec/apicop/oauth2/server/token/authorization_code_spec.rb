@@ -18,14 +18,20 @@ describe APICop::OAuth2::Server::Token::AuthorizationCode do
   let(:response) { request.post('/', :params => params) }
   subject { response }
 
-  its(:status)       { should == 200 }
-  its(:content_type) { should == 'application/json' }
-  its(:body)         { should include '"access_token":"access_token"' }
-  its(:body)         { should include '"token_type":"bearer"' }
+  context 'status' do
+    it { expect(subject.status).to eq 200 }
+  end
+  context 'content_type' do
+    it { expect(subject.content_type).to eq 'application/json' }
+  end
+  context 'body' do
+    it { expect(subject.body).to include '"access_token":"access_token"' }
+    it { expect(subject.body).to include '"token_type":"bearer"' }
+  end
 
   it 'should prevent to be cached' do
-    response.header['Cache-Control'].should == 'no-store'
-    response.header['Pragma'].should == 'no-cache'
+    expect(subject.header['Cache-Control']).to eq 'no-store'
+    expect(subject.header['Pragma']).to eq 'no-cache'
   end
 
   [:code].each do |required|
@@ -35,9 +41,16 @@ describe APICop::OAuth2::Server::Token::AuthorizationCode do
           key == required
         end
       end
-      its(:status)       { should == 400 }
-      its(:content_type) { should == 'application/json' }
-      its(:body)         { should include '"error":"invalid_request"' }
+
+      context 'status' do
+        it { expect(subject.status).to eq 400 }
+      end
+      context 'content_type' do
+        it { expect(subject.content_type).to eq 'application/json' }
+      end
+      context 'body' do
+        it { expect(subject.body).to include '"error":"invalid_request"' }
+      end
     end
   end
 end
